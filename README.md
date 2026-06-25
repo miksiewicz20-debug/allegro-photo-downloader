@@ -7,6 +7,7 @@ Funkcje:
 ✓ Pobieranie zdjęć HD z katalogu Allegro  
 ✓ Kopiowanie opisu katalogowego  
 ✓ Dane producenta (wyszukiwanie producenta / osoby odpowiedzialnej UE)
+
 ✓ Generowanie opisów bezpieczeństwa
 
 Instalacja:
