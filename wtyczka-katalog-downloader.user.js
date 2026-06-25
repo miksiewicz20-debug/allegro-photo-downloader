@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      3.3.1
+// @version      3.3.2
 // @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
 // @match        https://*.salescenter.allegro.com/*
 // @grant        none
@@ -289,7 +289,7 @@
             .trim();
 
         const query =
-            `stwórz mi opis bezpieczeństwa pod allegro dla "${productName}" sam opis bezpieczeństwa gotowy do wklejenia`;
+            `Stwórz wyłącznie czysty opis bezpieczeństwa Allegro dla "${productName}" w markdown, bez żadnych powitań, wstępów i komentarzy na końcu.`;
 
         const url =
             "https://www.google.com/search?q=" + encodeURIComponent(query) + "&udm=50";
