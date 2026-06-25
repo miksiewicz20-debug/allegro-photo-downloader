@@ -1,95 +1,229 @@
 // ==UserScript==
-// @name         Allegro Downloader HD Stable Final
+// @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      11.0
-// @description  Pobiera zdjęcia katalogu Allegro tylko na stronie katalogu produktu
+// @version      3.0
+// @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
 // @match        https://*.salescenter.allegro.com/*
-// @grant        GM_download
+// @grant        none
 // ==/UserScript==
 
-(function() {
+(function () {
     'use strict';
 
-    // czekamy aż Allegro załaduje stronę
+    let cachedProductData = null;
+
+    // =========================
+    // INIT
+    // =========================
     setTimeout(() => {
 
-        // pokazuj tylko jeśli istnieje przycisk ZMIEŃ PRODUKT
+        // tylko ekran katalogu produktu
         if (!document.body.innerText.includes("ZMIEŃ PRODUKT")) {
             console.log("Nie jest to ekran katalogu produktu");
             return;
         }
 
-        // znajdź zdjęcia katalogowe
-        const productImages = [...document.querySelectorAll("img")]
-            .filter(img =>
-                img.src.includes("a.allegroimg.com") &&
-                (
-                    img.src.includes("/s64b/") ||
-                    img.src.includes("/s360b/")
-                )
-            );
-
-        if (productImages.length < 3) {
-            console.log("Brak zdjęć katalogowych");
+        // zabezpieczenie przed duplikatem
+        if (document.getElementById("allegroToolbox")) {
             return;
         }
 
-        // nie twórz drugi raz
-        if (document.getElementById("allegro-hd-btn")) {
+        createToolbox();
+
+    }, 4000);
+
+
+    // =========================
+    // UI
+    // =========================
+    function createToolbox() {
+
+        const panel = document.createElement("div");
+        panel.id = "allegroToolbox";
+
+        panel.style.position = "fixed";
+        panel.style.bottom = "20px";
+        panel.style.right = "20px";
+        panel.style.zIndex = "99999";
+        panel.style.background = "white";
+        panel.style.border = "1px solid #ddd";
+        panel.style.padding = "12px";
+        panel.style.borderRadius = "8px";
+        panel.style.boxShadow = "0 2px 10px rgba(0,0,0,0.15)";
+        panel.style.fontFamily = "Arial";
+        panel.style.minWidth = "220px";
+
+        const title = document.createElement("div");
+        title.innerText = "ALLEGRO TOOLBOX";
+        title.style.fontWeight = "bold";
+        title.style.marginBottom = "10px";
+        title.style.textAlign = "center";
+
+        const downloadBtn = createButton("POBIERZ ZDJĘCIA", downloadImages);
+        const copyBtn = createButton("KOPIUJ OPIS", copyDescription);
+
+        panel.appendChild(title);
+        panel.appendChild(downloadBtn);
+        panel.appendChild(copyBtn);
+
+        document.body.appendChild(panel);
+    }
+
+
+    function createButton(text, action) {
+        const btn = document.createElement("button");
+
+        btn.innerText = text;
+        btn.style.width = "100%";
+        btn.style.padding = "10px";
+        btn.style.marginBottom = "8px";
+        btn.style.cursor = "pointer";
+        btn.style.border = "1px solid #ccc";
+        btn.style.background = "#f8f8f8";
+        btn.style.borderRadius = "5px";
+        btn.style.fontWeight = "bold";
+
+        btn.addEventListener("click", action);
+
+        return btn;
+    }
+
+
+    // =========================
+    // API
+    // =========================
+    async function fetchProductData() {
+
+        // cache — żeby nie robić fetch dwa razy
+        if (cachedProductData) {
+            return cachedProductData;
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("productId");
+
+        if (!productId) {
+            throw new Error("Brak productId");
+        }
+
+        const response = await fetch(
+            `https://edge.salescenter.allegro.com/sale/products/${productId}`,
+            {
+                headers: {
+                    "Accept": "application/vnd.allegro.form.v1+json"
+                },
+                credentials: "omit"
+            }
+        );
+
+        const data = await response.json();
+
+        console.log("API RESPONSE:", data);
+
+        cachedProductData = data;
+
+        return data;
+    }
+
+
+    // =========================
+    // DOWNLOAD IMAGES
+    // =========================
+    async function downloadImages() {
+    try {
+
+        const data = await fetchProductData();
+
+        if (!data.images || !data.images.length) {
+            alert("Brak zdjęć");
             return;
         }
 
-        // przycisk
-        const button = document.createElement("button");
-        button.id = "allegro-hd-btn";
-        button.innerText = "⬇ POBIERZ HD";
+        for (let i = 0; i < data.images.length; i++) {
 
-        button.style.position = "fixed";
-        button.style.bottom = "25px";
-        button.style.right = "25px";
-        button.style.zIndex = "999999";
-        button.style.padding = "12px 18px";
-        button.style.background = "#ff6900";
-        button.style.color = "white";
-        button.style.border = "none";
-        button.style.cursor = "pointer";
-        button.style.fontWeight = "bold";
-        button.style.borderRadius = "8px";
-        button.style.boxShadow = "0 3px 8px rgba(0,0,0,0.25)";
-        button.style.fontSize = "14px";
+            const img = data.images[i];
 
-        document.body.appendChild(button);
+            // pobranie obrazka jako blob
+            const response = await fetch(img.url);
+            const blob = await response.blob();
 
-        // pobieranie
-        button.addEventListener("click", () => {
+            // tworzymy lokalny URL
+            const blobUrl = URL.createObjectURL(blob);
 
-            const images = [...document.querySelectorAll("img")]
-                .filter(img => img.src.includes("a.allegroimg.com"))
-                .filter(img =>
-                    img.src.includes("/s64b/") ||
-                    img.src.includes("/s360b/")
-                )
-                .map(img => img.src);
+            // wymuszamy download
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = `allegro_${i + 1}.jpg`;
 
-            const unique = [...new Set(images)];
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
 
-            const originalLinks = unique.map(url =>
-                url.replace(/\/s[^/]+\//, "/original/")
-            );
+            // czyszczenie pamięci
+            URL.revokeObjectURL(blobUrl);
 
-            originalLinks.forEach((url, index) => {
-                GM_download({
-                    url: url,
-                    name: `allegro_${index + 1}.jpg`,
-                    saveAs: false
+            // mała przerwa żeby Chrome nie zgłupiał
+            await new Promise(resolve => setTimeout(resolve, 300));
+        }
+
+        alert(`Pobrano ${data.images.length} zdjęć`);
+
+    } catch (error) {
+        console.error(error);
+        alert("Błąd pobierania zdjęć");
+    }
+}
+
+    // =========================
+    // COPY DESCRIPTION
+    // =========================
+    async function copyDescription() {
+        try {
+
+            const data = await fetchProductData();
+
+            if (!data.description || !data.description.sections) {
+                alert("Brak opisu");
+                return;
+            }
+
+            let htmlBlocks = [];
+
+            data.description.sections.forEach(section => {
+                section.items.forEach(item => {
+                    if (item.type === "TEXT") {
+                        htmlBlocks.push(item.content);
+                    }
                 });
             });
 
-            alert("Pobieranie rozpoczęte: " + originalLinks.length + " zdjęć");
-        });
+            const fullHtml = htmlBlocks.join("<br><br>");
 
-        console.log("Przycisk dodany");
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = fullHtml;
 
-    }, 4000);
+            // listy → bullet points
+            tempDiv.querySelectorAll("li").forEach(li => {
+                li.innerHTML = "\n• " + li.innerText;
+            });
+
+            // paragrafy → nowe linie
+            tempDiv.querySelectorAll("p").forEach(p => {
+                p.innerHTML = p.innerText + "\n";
+            });
+
+            const finalText = tempDiv.innerText
+                .replace(/\n{3,}/g, "\n\n")
+                .trim();
+
+            await navigator.clipboard.writeText(finalText);
+
+            alert("Opis skopiowany do schowka");
+
+        } catch (error) {
+            console.error(error);
+            alert("Błąd kopiowania opisu");
+        }
+    }
 
 })();
