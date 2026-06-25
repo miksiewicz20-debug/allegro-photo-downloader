@@ -1,4 +1,4 @@
-# ALLEGRO TOOLBOX v3.3
+# ALLEGRO TOOLBOX v3.3.2
 
 Userscript do automatyzacji workflow podczas wystawiania ofert na Allegro.
 
@@ -21,6 +21,32 @@ Userscript do automatyzacji workflow podczas wystawiania ofert na Allegro.
 ---
 
 # Changelog
+
+### v3.3.2
+
+- Hotfix dla funkcji `OPIS BEZPIECZEŃSTWA`
+
+Naprawiono problem, gdzie AI generowało:
+
+- zbyt długie odpowiedzi  
+- emoji w tekście  
+- zbędne wyjaśnienia  
+
+Zmieniono prompt, aby zwracał:
+
+- czysty markdown  
+- zwięzły tekst  
+- gotowy format do szybkiego kopiowania
+
+---
+
+### v3.3.1
+
+- Ulepszono prompt dla funkcji `OPIS BEZPIECZEŃSTWA`
+- Poprawiono jakość odpowiedzi AI
+- Lepsze dopasowanie odpowiedzi pod workflow Allegro
+
+---
 
 ### v3.3
 
