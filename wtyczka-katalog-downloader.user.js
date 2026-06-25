@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      3.1
+// @version      3.2
 // @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
 // @match        https://*.salescenter.allegro.com/*
 // @grant        none
@@ -62,11 +62,13 @@
         const downloadBtn = createButton("POBIERZ ZDJĘCIA", downloadImages);
         const copyBtn = createButton("KOPIUJ OPIS", copyDescription);
         const manufacturerBtn = createButton("DANE PRODUCENTA", manufacturerSearch);
+        const safetyBtn = createButton("OPIS BEZPIECZEŃSTWA", safetyDescriptionSearch);
 
         panel.appendChild(title);
         panel.appendChild(downloadBtn);
         panel.appendChild(copyBtn);
         panel.appendChild(manufacturerBtn);
+        panel.appendChild(safetyBtn);
 
         document.body.appendChild(panel);
     }
@@ -77,13 +79,14 @@
 
         btn.innerText = text;
         btn.style.width = "100%";
-        btn.style.padding = "10px";
-        btn.style.marginBottom = "8px";
+        btn.style.padding = "6px";
+        btn.style.marginBottom = "4px";
         btn.style.cursor = "pointer";
         btn.style.border = "1px solid #ccc";
         btn.style.background = "#f8f8f8";
         btn.style.borderRadius = "5px";
         btn.style.fontWeight = "bold";
+        btn.style.fontSize = "12px";
 
         btn.addEventListener("click", action);
 
@@ -122,7 +125,7 @@
 
         console.log("API RESPONSE:", data);
 
-        cachedProductData = data;
+        if (data.name) cachedProductData = data;
 
         return data;
     }
@@ -259,6 +262,46 @@
         alert("Błąd wyszukiwania producenta");
     }
 }
+
+    async function safetyDescriptionSearch() {
+    try {
+
+        const data = await fetchProductData();
+
+        let productName = data.name;
+        if (!productName) {
+            throw new Error("Brak nazwy produktu");
+            }
+
+
+
+
+
+        // czyszczenie title
+        productName = productName
+            .replace(/\bNOWOŚĆ\b/gi, "")
+            .replace(/\bPROMOCJA\b/gi, "")
+            .replace(/\bOKAZJA\b/gi, "")
+            .replace(/\bHIT\b/gi, "")
+            .replace(/\bSUPER CENA\b/gi, "")
+            .replace(/\bBESTSELLER\b/gi, "")
+            .replace(/\bMEGA ZESTAW\b/gi, "")
+            .trim();
+
+        const query =
+            `ai stwórz opis bezpieczeństwa do umieszczenia na allegro zgodny z GPSR dla produktu "${productName}" uwzględnij ostrzeżenia zagrożenia zasady bezpiecznego użytkowania oraz środki ostrożności`;
+
+        const url =
+            "https://www.google.com/search?q=" + encodeURIComponent(query);
+
+        window.open(url, "_blank");
+
+    } catch (error) {
+        console.error(error);
+        alert("Błąd wyszukiwania opisu bezpieczeństwa");
+    }
+}
+
 
 
 })();
