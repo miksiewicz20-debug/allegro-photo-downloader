@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      3.0
+// @version      3.1
 // @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
 // @match        https://*.salescenter.allegro.com/*
 // @grant        none
@@ -61,10 +61,12 @@
 
         const downloadBtn = createButton("POBIERZ ZDJĘCIA", downloadImages);
         const copyBtn = createButton("KOPIUJ OPIS", copyDescription);
+        const manufacturerBtn = createButton("DANE PRODUCENTA", manufacturerSearch);
 
         panel.appendChild(title);
         panel.appendChild(downloadBtn);
         panel.appendChild(copyBtn);
+        panel.appendChild(manufacturerBtn);
 
         document.body.appendChild(panel);
     }
@@ -225,5 +227,38 @@
             alert("Błąd kopiowania opisu");
         }
     }
+
+    async function manufacturerSearch() {
+    try {
+
+        const data = await fetchProductData();
+
+        let productName = data.name;
+
+        // czyszczenie marketingowych dodatków
+        productName = productName
+            .replace(/\bNOWOŚĆ\b/gi, "")
+            .replace(/PROMOCJA/gi, "")
+            .replace(/OKAZJA/gi, "")
+            .replace(/\bHIT\b/gi, "")
+            .replace(/SUPER CENA/gi, "")
+            .replace(/BESTSELLER/gi, "")
+            .replace(/MEGA ZESTAW/gi, "")
+            .trim();
+
+        const query =
+            `znajdź producenta lub osobę odpowiedzialną na terenie UE dla produktu "${productName}" podaj nazwę firmy adres oraz email kontaktowy`;
+
+        const url =
+            "https://www.google.com/search?q=" + encodeURIComponent(query);
+
+        window.open(url, "_blank");
+
+    } catch (error) {
+        console.error(error);
+        alert("Błąd wyszukiwania producenta");
+    }
+}
+
 
 })();
