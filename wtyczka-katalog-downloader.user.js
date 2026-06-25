@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      3.2
+// @version      3.3
 // @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
 // @match        https://*.salescenter.allegro.com/*
 // @grant        none
@@ -250,10 +250,10 @@
             .trim();
 
         const query =
-            `znajdź producenta lub osobę odpowiedzialną na terenie UE dla produktu "${productName}" podaj nazwę firmy adres oraz email kontaktowy`;
+            `znajdź mi dane producenta lub osoby odpowiedzialnej na terenie UE dla produktu "${productName}" z nazwą firmy i adresem kontaktowym - wymagane do aukcji allegro`;
 
         const url =
-            "https://www.google.com/search?q=" + encodeURIComponent(query);
+            "https://www.google.com/search?q=" + encodeURIComponent(query) + "&udm=50";
 
         window.open(url, "_blank");
 
@@ -289,10 +289,10 @@
             .trim();
 
         const query =
-            `ai stwórz opis bezpieczeństwa do umieszczenia na allegro zgodny z GPSR dla produktu "${productName}" uwzględnij ostrzeżenia zagrożenia zasady bezpiecznego użytkowania oraz środki ostrożności`;
+            `stwórz mi opis bezpieczeństwa pod allegro dla "${productName}" zgodnie z GPSR`;
 
         const url =
-            "https://www.google.com/search?q=" + encodeURIComponent(query);
+            "https://www.google.com/search?q=" + encodeURIComponent(query) + "&udm=50";
 
         window.open(url, "_blank");
 
