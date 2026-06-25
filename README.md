@@ -1,12 +1,13 @@
 # ALLEGRO TOOLBOX
 
-v3.1
+v3.2
 
 Funkcje:
 
 ✓ Pobieranie zdjęć HD z katalogu Allegro  
 ✓ Kopiowanie opisu katalogowego  
 ✓ Dane producenta (wyszukiwanie producenta / osoby odpowiedzialnej UE)
+✓ Generowanie opisów bezpieczeństwa
 
 Instalacja:
 
