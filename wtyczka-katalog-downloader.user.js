@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Allegro Toolbox
 // @namespace    http://tampermonkey.net/
-// @version      3.3.2
+// @version      3.4
 // @description  Pobieranie zdjęć HD + kopiowanie opisu katalogowego Allegro
-// @match        https://*.salescenter.allegro.com/*
+// @match        https://*salescenter.allegro.com/*
 // @grant        none
 // ==/UserScript==
 
@@ -63,12 +63,14 @@
         const copyBtn = createButton("KOPIUJ OPIS", copyDescription);
         const manufacturerBtn = createButton("DANE PRODUCENTA", manufacturerSearch);
         const safetyBtn = createButton("OPIS BEZPIECZEŃSTWA", safetyDescriptionSearch);
+        const aiDescriptionBtn = createButton("OPIS AI", aiDescriptionSearch);
 
         panel.appendChild(title);
         panel.appendChild(downloadBtn);
         panel.appendChild(copyBtn);
         panel.appendChild(manufacturerBtn);
         panel.appendChild(safetyBtn);
+        panel.appendChild(aiDescriptionBtn);
 
         document.body.appendChild(panel);
     }
@@ -260,6 +262,42 @@
     } catch (error) {
         console.error(error);
         alert("Błąd wyszukiwania producenta");
+    }
+}
+
+async function aiDescriptionSearch() {
+    try {
+
+        const data = await fetchProductData();
+
+        let productName = data.name;
+
+        if (!productName) {
+            throw new Error("Brak nazwy produktu");
+        }
+
+        // czyszczenie title
+        productName = productName
+            .replace(/\bNOWOŚĆ\b/gi, "")
+            .replace(/\bPROMOCJA\b/gi, "")
+            .replace(/\bOKAZJA\b/gi, "")
+            .replace(/\bHIT\b/gi, "")
+            .replace(/\bSUPER CENA\b/gi, "")
+            .replace(/\bBESTSELLER\b/gi, "")
+            .replace(/\bMEGA ZESTAW\b/gi, "")
+            .trim();
+
+        const query =
+            `Stwórz mi profesjonalny opis sprzedażowy do aukcji Allegro zgodny z regulaminem Allegro dla produktu "${productName}". Opis ma być atrakcyjny marketingowo, podkreślać zalety produktu, być napisany naturalnym językiem sprzedażowym i gotowy do wklejenia na aukcję. Nie dodawaj komentarzy ani żadnych wstępów poza samym opisem.`;
+
+        const url =
+            "https://www.google.com/search?q=" + encodeURIComponent(query) + "&udm=50";
+
+        window.open(url, "_blank");
+
+    } catch (error) {
+        console.error(error);
+        alert("Błąd generowania opisu AI");
     }
 }
 
