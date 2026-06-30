@@ -1,4 +1,4 @@
-# ALLEGRO TOOLBOX v3.4
+# ALLEGRO TOOLBOX v3.5
 
 Userscript do automatyzacji workflow podczas wystawiania ofert na Allegro.
 
@@ -10,6 +10,8 @@ Userscript do automatyzacji workflow podczas wystawiania ofert na Allegro.
 * Generowanie zapytań bezpieczeństwa GPSR
 * Generowanie opisów sprzedażowych AI
 * Integracja z Google AI Mode
+* Inteligentne przełączanie między produktami bez odświeżania strony
+* Nowoczesny interfejs użytkownika
 * Automatyzacja procesu jednym kliknięciem
 
 ## Instalacja
@@ -22,6 +24,38 @@ Userscript do automatyzacji workflow podczas wystawiania ofert na Allegro.
 ---
 
 # Changelog
+
+### v3.5
+
+Duży update skupiony na stabilności działania oraz poprawie UX.
+
+#### Core improvements
+
+* Naprawiono problem z cache API podczas przechodzenia między produktami
+* Cache został powiązany z aktualnym `productId` zamiast przechowywać ostatnio załadowany produkt
+* Wyeliminowano konieczność ręcznego odświeżania strony (`F5`) po wejściu w nowy katalog produktu
+* Dodano automatyczne wykrywanie zmiany URL w Allegro Sales Center
+* Toolbox automatycznie przeładowuje się przy przechodzeniu między produktami
+* Dodano pełne wsparcie dla SPA (Single Page Application) używanego przez Allegro Sales Center
+
+#### UI / UX improvements
+
+* Usunięto klasyczne `alert()` blokujące workflow
+* Dodano nowoczesny system powiadomień typu **Toast Notifications**
+* Powiadomienia pojawiają się automatycznie bez przerywania pracy użytkownika
+* Odświeżono wygląd panelu toolbox
+* Poprawiono styling przycisków
+* Dodano hover effects dla lepszej interakcji
+* Ulepszono spacing, padding oraz nowoczesny minimalistyczny wygląd UI
+
+Efekt:
+
+* szybsza praca bez odświeżania strony
+* lepszy komfort pracy przy seryjnym wystawianiu ofert
+* bardziej profesjonalny interfejs użytkownika
+* płynniejszy workflow dla użytkowników lombardów
+
+---
 
 ### v3.4
 
@@ -141,4 +175,4 @@ DANE PRODUCENTA
 
 **Current version:**
 
-# ALLEGRO TOOLBOX v3.4 🚀
+# ALLEGRO TOOLBOX v3.5 🚀
